@@ -28,6 +28,9 @@ services:
       - ./Movie_Service:/app
     networks:
       - app-network
+    depends_on:
+      - CinemaDB
+
 
   recommendation-service:
     build:
@@ -68,6 +71,9 @@ services:
       - ./User_Service:/app
     networks:
       - app-network
+    depends_on:
+      - UserDB
+    
 
 networks:
   app-network:
