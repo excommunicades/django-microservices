@@ -1,0 +1,77 @@
+version: "3.9"
+services:
+
+  CinemaDB:
+    image: postgres:13
+    volumes:
+      - movie-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"
+  UserDB:
+    image: postgres:13
+    volumes:
+      - movie-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - "5435:5432"
+  movie-service:
+    build:
+      context: ./Movie_Service
+    env_file:
+      - ./Movie_Service/.env
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./Movie_Service:/app
+    networks:
+      - app-network
+
+  recommendation-service:
+    build:
+      context: ./Recommendation_Service
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./Recommendation_Service:/app
+    networks:
+      - app-network
+
+  review-service:
+    build:
+      context: ./Review_Service
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./Review_Service:/app
+    networks:
+      - app-network
+
+  search-service:
+    build:
+      context: ./Search_Service
+    ports:
+      - "8004:8000"
+    volumes:
+      - ./Search_Service:/app
+    networks:
+      - app-network
+
+  user-service:
+    build:
+      context: ./User_Service
+    ports:
+      - "8005:8000"
+    volumes:
+      - ./User_Service:/app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  movie-db-data:
