@@ -2,6 +2,8 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from auths.models import User
 
+# TODO: Solve problem with verify_field
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     
     '''Registration serializer'''

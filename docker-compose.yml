@@ -3,6 +3,8 @@ services:
 
   CinemaDB:
     image: postgres:13
+    env_file:
+      - ./Movie_Service/.env
     volumes:
       - movie-db-data:/var/lib/postgresql/data
     networks:
@@ -11,15 +13,18 @@ services:
       - "5432:5432"
   UserDB:
     image: postgres:13
+    env_file:
+      - ./User_Service/.env
     volumes:
-      - movie-db-data:/var/lib/postgresql/data
+      - user-db-data:/var/lib/postgresql/data
     networks:
       - app-network
     ports:
-      - "5435:5432"
+      - "5433:5432"
   movie-service:
     build:
       context: ./Movie_Service
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     env_file:
       - ./Movie_Service/.env
     ports:
@@ -35,6 +40,7 @@ services:
   recommendation-service:
     build:
       context: ./Recommendation_Service
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8002:8000"
     volumes:
@@ -45,6 +51,7 @@ services:
   review-service:
     build:
       context: ./Review_Service
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8003:8000"
     volumes:
@@ -55,6 +62,7 @@ services:
   search-service:
     build:
       context: ./Search_Service
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8004:8000"
     volumes:
@@ -65,14 +73,19 @@ services:
   user-service:
     build:
       context: ./User_Service
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8005:8000"
     volumes:
       - ./User_Service:/app
+    environment:
+      - DATABASE_URL=postgres://postgres:12345@UserDB:5432/UserDB
     networks:
       - app-network
     depends_on:
       - UserDB
+    env_file:
+      - ./User_Service/.env
     
 
 networks:
@@ -81,3 +94,4 @@ networks:
 
 volumes:
   movie-db-data:
+  user-db-data:
