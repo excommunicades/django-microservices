@@ -1,6 +1,6 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from auths.models import User
 from auths.serializers import (
@@ -27,8 +27,6 @@ class UserLoginView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
 
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = User.objects.get(verify_field=request.data['verify_field'])
-        response = serializer.get_user_token_data(user)
-
-        return Response(response, status=status.HTTP_200_OK)
+        if serializer.is_valid(raise_exception=True):
+            response = serializer.get_user_token_data(serializer.validated_data['verify_field'])
+            return Response(response, status=status.HTTP_200_OK)

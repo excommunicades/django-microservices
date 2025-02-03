@@ -1,8 +1,10 @@
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import RefreshToken
 from auths.models import User
 
-# TODO: Solve problem with verify_field
+from auths.utils.serializers_utils import (
+    get_user_token_data,
+    validate_user,
+)
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     
@@ -32,32 +34,10 @@ class UserLoginSerializer(serializers.Serializer):
 
         '''returns user from nickname/email'''
 
-        try:
-            user = User.objects.get(nickname=data['verify_field'])
-        except Exception as e:
-            try:
-                user = User.objects.get(email=data['verify_field'])
-            except Exception as e:
-                raise serializers.ValidationError({"errors": "User does not exist"})
-
-        if not user.check_password(data['password']):
-            raise serializers.ValidationError({"errors": "Wrong Password."})
-
-        return data
+        return validate_user(data)
     
     def get_user_token_data(self, user):
 
         '''return user data & token'''
 
-        refresh = RefreshToken.for_user(user)
-        return {
-            'user': {
-                'id': user.id,
-                'nickname': user.nickname,
-                'email': user.email,
-            },
-            'tokens':{
-                'access_token': str(refresh.access_token),
-                'refresh_token': str(refresh),
-            }
-        }
+        return get_user_token_data(user)
